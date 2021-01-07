@@ -4,25 +4,23 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2afdbda0466b18812e8e09c46b694b5991658e4689f2e53825438e49826be369
+-- hash: 416a5075c032217562f131c835defb7079f4f87bd509f787f599c569bee85a4b
 
 name:           swedishverbs-haskell
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/swedishverbs-haskell#readme>
-homepage:       https://github.com/githubuser/swedishverbs-haskell#readme
-bug-reports:    https://github.com/githubuser/swedishverbs-haskell/issues
+description:    Please see the README on GitHub at <https://github.com/OlofHerman/swedishverbs-haskell#readme>
+homepage:       https://github.com/OlofHerman/swedishverbs-haskell#readme
+bug-reports:    https://github.com/OlofHerman/swedishverbs-haskell/issues
 author:         Olof Kastrup
 copyright:      2021 Olof Kastrup
 license:        BSD3
-license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/swedishverbs-haskell
+  location: https://github.com/OlofHerman/swedishverbs-haskell
 
 library
   exposed-modules:

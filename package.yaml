@@ -1,6 +1,6 @@
 name:                swedishverbs-haskell
 version:             0.1.0.0
-github:              "githubuser/swedishverbs-haskell"
+github:              "OlofHerman/swedishverbs-haskell"
 license:             BSD3
 author:              "Olof Kastrup"
 maintainer:          ""
@@ -8,7 +8,6 @@ copyright:           "2021 Olof Kastrup"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 default-extensions:
 - BangPatterns
@@ -65,7 +64,7 @@ ghc-options:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/swedishverbs-haskell#readme>
+description:         Please see the README on GitHub at <https://github.com/OlofHerman/swedishverbs-haskell#readme>
 
 dependencies:
   - aeson

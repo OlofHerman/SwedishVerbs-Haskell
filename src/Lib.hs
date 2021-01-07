@@ -6,6 +6,7 @@ import Data.Aeson (ToJSON)
 import RIO
   ( Eq ((==)),
     Generic,
+    Integer,
     Maybe (..),
     Monad (return),
     Proxy (..),
@@ -14,6 +15,7 @@ import RIO
 import RIO.List (find)
 import Servant
   ( Application,
+    Capture,
     Get,
     Handler,
     JSON,
@@ -30,9 +32,11 @@ import Servant
 type VerbApi =
   "verbs" :> Get '[JSON] [SweVerb]
     :<|> "verb" :> QueryParam "infinitive" Text :> Get '[JSON] SweVerb
+    :<|> "id" :> Capture "id" Integer :> Get '[JSON] SweVerb
 
 data SweVerb = SweVerb
-  { infinitive :: Text,
+  { id :: Integer,
+    infinitive :: Text,
     present :: Text,
     past :: Text,
     supine :: Text,
@@ -49,20 +53,20 @@ instance ToJSON SweVerb
 
 verbs :: [SweVerb]
 verbs =
-  [ SweVerb "be" "ber" "bad" "bett" "biþia" "biþer" "baþ" "bāþo" "biþin" "Vj",
-    SweVerb "binda" "binder" "band" "bundit" "binda" "binder" "bant" "bundo" "bundin" "III",
-    SweVerb "bita" "biter" "bet" "bitit" "bīta" "bīter" "bēt" "bitu" "bitin" "I",
-    SweVerb "bjuda" "bjuder" "bjöd" "bjudit" "biūþa" "biūþer" "bø̄þ" "buþu" "buþin" "II",
-    SweVerb "bära" "bär" "bar" "burit" "bæra" "bær" "bar" "bāro" "burin" "IV",
-    SweVerb "driva" "driver" "drev" "drivit" "drīva" "drīver" "drēf" "drivu" "drivin" "I",
-    SweVerb "dra" "drar" "drog" "dragit" "dragha" "dragher" "drōgh" "drōgho" "draghin" "VI"
+  [ SweVerb 1 "be" "ber" "bad" "bett" "biþia" "biþer" "baþ" "bāþo" "biþin" "Vj",
+    SweVerb 2 "binda" "binder" "band" "bundit" "binda" "binder" "bant" "bundo" "bundin" "III",
+    SweVerb 3 "bita" "biter" "bet" "bitit" "bīta" "bīter" "bēt" "bitu" "bitin" "I",
+    SweVerb 4 "bjuda" "bjuder" "bjöd" "bjudit" "biūþa" "biūþer" "bø̄þ" "buþu" "buþin" "II",
+    SweVerb 5 "bära" "bär" "bar" "burit" "bæra" "bær" "bar" "bāro" "burin" "IV",
+    SweVerb 6 "driva" "driver" "drev" "drivit" "drīva" "drīver" "drēf" "drivu" "drivin" "I",
+    SweVerb 7 "dra" "drar" "drog" "dragit" "dragha" "dragher" "drōgh" "drōgho" "draghin" "VI"
   ]
 
 verbApi :: Proxy VerbApi
 verbApi = Proxy
 
 server :: Server VerbApi
-server = getAllVerbs :<|> getVerbByInf
+server = getAllVerbs :<|> getVerbByInf :<|> getVerbById
 
 getAllVerbs :: Servant.Handler [SweVerb]
 getAllVerbs = return verbs
@@ -74,10 +78,17 @@ getVerbByInf maybeInfinitive = case maybeInfinitive of
     Nothing -> throwError err404
     Just found -> return found
     where
-      lookupVerb = findVerb maybeVerb verbs
+      lookupVerb = findVerbByInf maybeVerb
 
-findVerb :: Text -> [SweVerb] -> Maybe SweVerb
-findVerb inf verbxs = find (\x -> infinitive x == inf) verbs
+findVerbByInf :: Text -> Maybe SweVerb
+findVerbByInf inf = find (\x -> infinitive x == inf) verbs
+
+getVerbById :: Integer -> Servant.Handler SweVerb
+getVerbById verbId = case lookupVerb of
+  Nothing -> throwError err404
+  Just found -> return found
+  where
+    lookupVerb = find (\x -> id x == verbId) verbs
 
 app :: Application
 app = serve verbApi server
