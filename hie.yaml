@@ -1,0 +1,8 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "swedishverbs-haskell:lib"
+    - path: "./app"
+      component: "swedishverbs-haskell:exe:swedishverbs-haskell-exe"
+    - path: "./test"
+      component: "swedishverbs-haskell:test:swedishverbs-haskell-test"
