@@ -13,6 +13,7 @@ import RIO
     Text,
   )
 import RIO.List (find)
+import RIO.Text (toLower)
 import Servant
   ( Application,
     Capture,
@@ -68,22 +69,19 @@ verbApi = Proxy
 server :: Server VerbApi
 server = getAllVerbs :<|> getVerbByInf :<|> getVerbById
 
-getAllVerbs :: Servant.Handler [SweVerb]
+getAllVerbs :: Handler [SweVerb]
 getAllVerbs = return verbs
 
-getVerbByInf :: Maybe Text -> Servant.Handler SweVerb
+getVerbByInf :: Maybe Text -> Handler SweVerb
 getVerbByInf maybeInfinitive = case maybeInfinitive of
   Nothing -> throwError err400
   Just maybeVerb -> case lookupVerb of
     Nothing -> throwError err404
     Just found -> return found
     where
-      lookupVerb = findVerbByInf maybeVerb
+      lookupVerb = find (\x -> infinitive x == toLower maybeVerb) verbs
 
-findVerbByInf :: Text -> Maybe SweVerb
-findVerbByInf inf = find (\x -> infinitive x == inf) verbs
-
-getVerbById :: Integer -> Servant.Handler SweVerb
+getVerbById :: Integer -> Handler SweVerb
 getVerbById verbId = case lookupVerb of
   Nothing -> throwError err404
   Just found -> return found
