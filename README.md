@@ -11,4 +11,5 @@ Commands to build and run:
 Endpoints:
 * GET: http://{hostname}:8080/verbs                               - get all verbs
 * GET: http://{hostname}:8080/verb?infinitive={infinitive form}   - get verb by modern swedish infinitive form
-* GET: http://{hostname}:8080/id/{id}                             - get verb by ID
+* DELETE: http://{hostname}:8080/verb?infinitive={infinitive form} - delete verb modern swedish infinitive form
+* POST: http://{hostname}:8080/verb (with JSON body)              - post new verb
