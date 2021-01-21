@@ -1,0 +1,11 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "swe_verb"("id" INTEGER PRIMARY KEY,"infinitive" VARCHAR NOT NULL,"present" VARCHAR NOT NULL,"past" VARCHAR NOT NULL,"supine" VARCHAR NOT NULL,"old_infinitive" VARCHAR NOT NULL,"old_present" VARCHAR NOT NULL,"old_past" VARCHAR NOT NULL,"old_past_plural" VARCHAR NOT NULL,"old_past_participle" VARCHAR NOT NULL,"verb_class" VARCHAR NOT NULL);
+INSERT INTO swe_verb VALUES(1,'be','ber','bad','bett','biþia','biþer','baþ','bāþo','biþin','Vj');
+INSERT INTO swe_verb VALUES(2,'binda','binder','band','bundit','binda','binder','bant','bundo','bundin','III');
+INSERT INTO swe_verb VALUES(3,'bita','biter','bet','bitit','bīta','bīter','bēt','bitu','bitin','I');
+INSERT INTO swe_verb VALUES(4,'bjuda','bjuder','bjöd','bjudit','biūþa','biūþer','bø̄þ','buþu','buþin','II');
+INSERT INTO swe_verb VALUES(5,'bära','bär','bar','burit','bæra','bær','bar','bāro','burin','IV');
+INSERT INTO swe_verb VALUES(6,'driva','driver','drev','drivit','drīva','drīver','drēf','drivu','drivin','I');
+INSERT INTO swe_verb VALUES(7,'dra','drar','drog','dragit','dragha','dragher','drōgh','drōgho','draghin','VI');
+COMMIT;

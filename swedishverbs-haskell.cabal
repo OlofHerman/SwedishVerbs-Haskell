@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 416a5075c032217562f131c835defb7079f4f87bd509f787f599c569bee85a4b
+-- hash: 6d3ac8a14ce5ca90da049041bf36225ec9efda347de681e6a2f46066628f5578
 
 name:           swedishverbs-haskell
 version:        0.1.0.0
@@ -24,7 +24,8 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Api
+      Models
   other-modules:
       Paths_swedishverbs_haskell
   hs-source-dirs:
@@ -34,6 +35,10 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , monad-logger
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , rio
     , servant-server
     , warp
@@ -50,6 +55,10 @@ executable swedishverbs-haskell-exe
   build-depends:
       aeson
     , base >=4.7 && <5
+    , monad-logger
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , rio
     , servant-server
     , swedishverbs-haskell
@@ -68,6 +77,10 @@ test-suite swedishverbs-haskell-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , monad-logger
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , rio
     , servant-server
     , swedishverbs-haskell

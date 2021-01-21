@@ -69,6 +69,10 @@ description:         Please see the README on GitHub at <https://github.com/Olof
 dependencies:
   - aeson
   - base >= 4.7 && < 5
+  - monad-logger
+  - persistent
+  - persistent-sqlite
+  - persistent-template
   - rio
   - servant-server
   - warp
