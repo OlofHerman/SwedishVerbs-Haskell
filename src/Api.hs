@@ -7,7 +7,7 @@ import Database.Persist.Sqlite
     Entity (entityVal),
     PersistQueryRead (selectFirst),
     PersistQueryWrite (deleteWhere),
-    PersistStoreWrite (insert),
+    PersistStoreWrite (insert, replace),
     SqlBackend,
     fromSqlKey,
     runSqlPool,
@@ -18,7 +18,6 @@ import Database.Persist.Sqlite
 import Models (EntityField (SweVerbId, SweVerbInfinitive), SweVerb)
 import RIO
   ( IO,
-    Int,
     Int64,
     Maybe (Just, Nothing),
     Monad (return),
@@ -41,6 +40,7 @@ import Servant
     JSON,
     Post,
     Proxy (..),
+    Put,
     QueryParam,
     ReqBody,
     Server,
@@ -55,16 +55,28 @@ import Servant
 
 type VerbApi =
   "verbs" :> Get '[JSON] [Entity SweVerb]
+    :<|> "verbs" :> QueryParam "infinitive" String :> Get '[JSON] [Entity SweVerb]
     :<|> "verb" :> Capture "id" Int64 :> Get '[JSON] (Entity SweVerb)
-    :<|> "verb" :> QueryParam "infinitive" String :> Get '[JSON] (Entity SweVerb)
-    :<|> "verb" :> QueryParam "infinitive" String :> Delete '[JSON] String
+    :<|> "verb" :> Capture "id" Int64 :> Delete '[JSON] String
     :<|> "verb" :> ReqBody '[JSON] SweVerb :> Post '[JSON] String
+    :<|> "verb" :> Capture "id" Int64 :> ReqBody '[JSON] SweVerb :> Put '[JSON] String
 
 server :: ConnectionPool -> Server VerbApi
-server pool = getAllVerbs :<|> getVerbById :<|> getVerbByInf :<|> deleteVerbByInf :<|> postVerb
+server pool =
+  getAllVerbs
+    :<|> getVerbsByInf
+    :<|> getVerbById
+    :<|> deleteVerbById
+    :<|> postVerb
+    :<|> updateVerbById
   where
     getAllVerbs :: Handler [Entity SweVerb]
     getAllVerbs = runDb pool $ selectList [] []
+
+    getVerbsByInf :: Maybe String -> Handler [Entity SweVerb]
+    getVerbsByInf maybeInf = case maybeInf of
+      Nothing -> throwError $ err400 {errBody = "No infinitive supplied."}
+      Just maybeVerb -> runDb pool $ selectList [SweVerbInfinitive ==. map toLower maybeVerb] []
 
     getVerbById :: Int64 -> Handler (Entity SweVerb)
     getVerbById dbId = do
@@ -73,33 +85,28 @@ server pool = getAllVerbs :<|> getVerbById :<|> getVerbByInf :<|> deleteVerbByIn
         Nothing -> throwError $ err404 {errBody = "Verb not found."}
         Just found -> return found
 
-    getVerbByInf :: Maybe String -> Handler (Entity SweVerb)
-    getVerbByInf maybeInf = case maybeInf of
-      Nothing -> throwError $ err400 {errBody = "No infinitive supplied."}
-      Just maybeVerb -> do
-        lookupVerb <- runDb pool $ selectFirst [SweVerbInfinitive ==. map toLower maybeVerb] []
-        case lookupVerb of
-          Nothing -> throwError $ err404 {errBody = "Verb not found."}
-          Just found -> return found
-
-    deleteVerbByInf :: Maybe String -> Handler String
-    deleteVerbByInf maybeInf = case maybeInf of
-      Nothing -> throwError $ err400 {errBody = "No infinitive supplied."}
-      Just maybeVerb -> do
-        lookupVerb <- runDb pool $ selectFirst [SweVerbInfinitive ==. maybeVerb] []
-        case lookupVerb of
-          Nothing -> throwError err404 {errBody = "Verb not found."}
-          Just found -> do
-            _ <- runDb pool $ deleteWhere [SweVerbInfinitive ==. maybeVerb]
-            return "Verb deleted."
+    deleteVerbById :: Int64 -> Handler String
+    deleteVerbById dbId = do
+      lookupVerb <- runDb pool $ selectFirst [SweVerbId ==. toSqlKey dbId] []
+      case lookupVerb of
+        Nothing -> throwError $ err404 {errBody = "Verb not found."}
+        Just found -> do
+          _ <- runDb pool $ deleteWhere [SweVerbId ==. toSqlKey dbId]
+          return "Verb deleted."
 
     postVerb :: SweVerb -> Handler String
     postVerb pverb = do
       newVerbKey <- runDb pool $ insert pverb
       return $ "Verb inserted with id: " ++ show (fromSqlKey newVerbKey)
 
--- updateVerbById :: Int64 -> SweVerb -> Handler String
--- updateVerbById dbId updateVerb =
+    updateVerbById :: Int64 -> SweVerb -> Handler String
+    updateVerbById dbId updateVerb = do
+      lookupVerb <- runDb pool $ selectFirst [SweVerbId ==. toSqlKey dbId] []
+      case lookupVerb of
+        Nothing -> throwError $ err404 {errBody = "Verb not found."}
+        Just found -> do
+          _ <- runDb pool $ replace (toSqlKey dbId) updateVerb
+          return "Verb updated."
 
 verbApi :: Proxy VerbApi
 verbApi = Proxy
