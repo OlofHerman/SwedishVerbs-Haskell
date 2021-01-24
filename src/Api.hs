@@ -12,11 +12,14 @@ import Database.Persist.Sqlite
     fromSqlKey,
     runSqlPool,
     selectList,
+    toSqlKey,
     (==.),
   )
-import Models (EntityField (SweVerbInfinitive), SweVerb)
+import Models (EntityField (SweVerbId, SweVerbInfinitive), SweVerb)
 import RIO
   ( IO,
+    Int,
+    Int64,
     Maybe (Just, Nothing),
     Monad (return),
     MonadIO (..),
@@ -31,6 +34,7 @@ import RIO
 import RIO.Char (toLower)
 import Servant
   ( Application,
+    Capture,
     Delete,
     Get,
     Handler,
@@ -50,32 +54,33 @@ import Servant
   )
 
 type VerbApi =
-  "verbs" :> Get '[JSON] [SweVerb]
-    :<|> "verb" :> QueryParam "infinitive" String :> Get '[JSON] SweVerb
+  "verbs" :> Get '[JSON] [Entity SweVerb]
+    :<|> "verb" :> Capture "id" Int64 :> Get '[JSON] (Entity SweVerb)
+    :<|> "verb" :> QueryParam "infinitive" String :> Get '[JSON] (Entity SweVerb)
     :<|> "verb" :> QueryParam "infinitive" String :> Delete '[JSON] String
     :<|> "verb" :> ReqBody '[JSON] SweVerb :> Post '[JSON] String
 
 server :: ConnectionPool -> Server VerbApi
-server pool = getAllVerbs :<|> getVerbByInf :<|> deleteVerbByInf :<|> postVerb
+server pool = getAllVerbs :<|> getVerbById :<|> getVerbByInf :<|> deleteVerbByInf :<|> postVerb
   where
-    getAllVerbs :: Handler [SweVerb]
-    getAllVerbs = do
-      entities <- runDb pool $ selectList [] []
-      return $ map entityVal entities
+    getAllVerbs :: Handler [Entity SweVerb]
+    getAllVerbs = runDb pool $ selectList [] []
 
-    getVerbByInf :: Maybe String -> Handler SweVerb
+    getVerbById :: Int64 -> Handler (Entity SweVerb)
+    getVerbById dbId = do
+      lookupVerb <- runDb pool $ selectFirst [SweVerbId ==. toSqlKey dbId] []
+      case lookupVerb of
+        Nothing -> throwError $ err404 {errBody = "Verb not found."}
+        Just found -> return found
+
+    getVerbByInf :: Maybe String -> Handler (Entity SweVerb)
     getVerbByInf maybeInf = case maybeInf of
       Nothing -> throwError $ err400 {errBody = "No infinitive supplied."}
       Just maybeVerb -> do
         lookupVerb <- runDb pool $ selectFirst [SweVerbInfinitive ==. map toLower maybeVerb] []
         case lookupVerb of
           Nothing -> throwError $ err404 {errBody = "Verb not found."}
-          Just found -> return $ entityVal found
-
-    postVerb :: SweVerb -> Handler String
-    postVerb pverb = do
-      newVerbKey <- runDb pool $ insert pverb
-      return $ "Verb inserted with id: " ++ show (fromSqlKey newVerbKey)
+          Just found -> return found
 
     deleteVerbByInf :: Maybe String -> Handler String
     deleteVerbByInf maybeInf = case maybeInf of
@@ -87,6 +92,14 @@ server pool = getAllVerbs :<|> getVerbByInf :<|> deleteVerbByInf :<|> postVerb
           Just found -> do
             _ <- runDb pool $ deleteWhere [SweVerbInfinitive ==. maybeVerb]
             return "Verb deleted."
+
+    postVerb :: SweVerb -> Handler String
+    postVerb pverb = do
+      newVerbKey <- runDb pool $ insert pverb
+      return $ "Verb inserted with id: " ++ show (fromSqlKey newVerbKey)
+
+-- updateVerbById :: Int64 -> SweVerb -> Handler String
+-- updateVerbById dbId updateVerb =
 
 verbApi :: Proxy VerbApi
 verbApi = Proxy

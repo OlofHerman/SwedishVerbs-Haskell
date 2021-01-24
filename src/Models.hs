@@ -15,6 +15,7 @@ import Data.Aeson
     (.:),
   )
 import Data.Aeson.Types (Parser)
+import Database.Persist.Sqlite (Entity (entityKey, entityVal))
 import Database.Persist.TH
   ( mkMigrate,
     mkPersist,
@@ -82,3 +83,7 @@ instance ToJSON SweVerb where
           "oldPastParticiple" .= oldPastParticiple,
           "verbClass" .= verbClass
         ]
+
+instance ToJSON (Entity SweVerb) where
+  toJSON :: Entity SweVerb -> Value
+  toJSON entityVerb = object ["id" .= entityKey entityVerb, "verb" .= entityVal entityVerb]
