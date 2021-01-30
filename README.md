@@ -5,8 +5,12 @@ This is an experimental project to create a REST-API with Haskell with Servant a
 Stack is needed to compile and run application. See https://docs.haskellstack.org/
 
 Commands to build and run:
-* stack build
-* stack exec swedishverbs-haskell-exe
+* `stack build`
+* `stack exec swedishverbs-haskell-exe`
+
+It is also possible to run in docker (if Stack isn't available):
+* `docker build -t swedishverbs .`
+* `docker run -p 8080:8080 swedishverbs`
 
 Endpoints:
 * GET: http://{hostname}:8080/verbs                               - get all verbs
