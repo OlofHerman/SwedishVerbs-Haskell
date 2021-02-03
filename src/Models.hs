@@ -86,4 +86,19 @@ instance ToJSON SweVerb where
 
 instance ToJSON (Entity SweVerb) where
   toJSON :: Entity SweVerb -> Value
-  toJSON entityVerb = object ["id" .= entityKey entityVerb, "verb" .= entityVal entityVerb]
+  toJSON entityVerb =
+    object
+      [ "id" .= entityKey entityVerb,
+        "infinitive" .= sweVerbInfinitive sweRecord,
+        "present" .= sweVerbPresent sweRecord,
+        "past" .= sweVerbPast sweRecord,
+        "supine" .= sweVerbSupine sweRecord,
+        "oldInfinitive" .= sweVerbOldInfinitive sweRecord,
+        "oldPresent" .= sweVerbOldPresent sweRecord,
+        "oldPast" .= sweVerbOldPast sweRecord,
+        "oldPastPlural" .= sweVerbOldPastPlural sweRecord,
+        "oldPastParticiple" .= sweVerbOldPastParticiple sweRecord,
+        "verbClass" .= sweVerbVerbClass sweRecord
+      ]
+    where
+      sweRecord = entityVal entityVerb

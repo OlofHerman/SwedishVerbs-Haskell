@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0f2131ec9f47af90acdd1991d361c528a249eb86d0ea26c9b5506c8ee4b6159e
+-- hash: 9cc299ec17fbbbb9403b12aecb7d4a9f2f6abaf0214fe894b859a1f886536291
 
 name:           swedishverbs-haskell
 version:        0.2.0.0
@@ -35,12 +35,16 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , lens
     , monad-logger
     , persistent
     , persistent-sqlite
     , persistent-template
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
     , warp
   default-language: Haskell2010
 
@@ -55,12 +59,16 @@ executable swedishverbs-haskell-exe
   build-depends:
       aeson
     , base >=4.7 && <5
+    , lens
     , monad-logger
     , persistent
     , persistent-sqlite
     , persistent-template
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
     , swedishverbs-haskell
     , warp
   default-language: Haskell2010
@@ -77,12 +85,16 @@ test-suite swedishverbs-haskell-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , lens
     , monad-logger
     , persistent
     , persistent-sqlite
     , persistent-template
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
     , swedishverbs-haskell
     , warp
   default-language: Haskell2010
